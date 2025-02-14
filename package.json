@@ -1,6 +1,6 @@
 {
   "name": "react-window-modals",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0-beta.3",
   "description": "A headless React window modal library with drag, resize, and fullscreen capabilities",
   "author": "Hazim Alper ATA",
   "license": "MIT",
