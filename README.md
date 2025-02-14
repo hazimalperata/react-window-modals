@@ -1,3 +1,6 @@
+> [!CAUTION]
+> THIS PACKAGE IS UNDER CODING! DO **NOT** USE!
+ 
 # React Headless Modal
 
 A fully customizable, headless modal component for React with drag, resize, and fullscreen capabilities.
@@ -19,37 +22,6 @@ yarn add react-window-modals
 - 🎯 Zero dependencies
 - 💡 TypeScript support
 
-## Usage
-tsx
-import { ModalProvider, useModal, ModalHeaderProps } from 'react-window-modals';
-// Create your custom header
-const CustomHeader = ({ onClose, dragHandleProps, isFullscreen }: ModalHeaderProps) => (
-<div>
-<div {...dragHandleProps}>Drag Handle</div>
-<h3>Modal Title</h3>
-<button onClick={onClose}>Close</button>
-</div>
-);
-// Use the modal
-const YourComponent = () => {
-const { openModal } = useModal();
-const handleOpenModal = () => {
-openModal({
-id: 'unique-id',
-component: YourModalContent,
-headerContent: CustomHeader,
-position: { x: 100, y: 100 },
-size: { width: 400, height: 300 }
-});
-};
-return <button onClick={handleOpenModal}>Open Modal</button>;
-};
-// Wrap your app with ModalProvider
-const App = () => (
-<ModalProvider>
-<YourComponent />
-</ModalProvider>
-);
 ## MIT License
 Copyright (c) 2024 Hazim Alper ATA
 
