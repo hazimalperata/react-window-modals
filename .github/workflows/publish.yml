@@ -38,21 +38,30 @@ jobs:
         run: npm run build
         
       - name: Publish to npm
-        run: npm publish --access public
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          
+      - name: Prepare for GitHub Packages
+        run: |
+          cp package.json package.json.orig
+          npm pkg set name="@hazimalperata/react-window-modals"
+          npm pkg set publishConfig.registry="https://npm.pkg.github.com"
           
       - name: Setup Node.js for GitHub Packages
         uses: actions/setup-node@v4
         with:
           node-version: '18.x'
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@hazimalperata'
           
       - name: Publish to GitHub Packages
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Restore package.json
+        run: |
+          mv package.json.orig package.json
           
       - name: Push changes
         run: |
