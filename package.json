@@ -1,0 +1,66 @@
+{
+  "name": "react-window-modals",
+  "version": "0.1.0-beta.1",
+  "description": "A headless React window modal library with drag, resize, and fullscreen capabilities",
+  "author": "Hazim Alper ATA",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hazimalperata/react-window-modals.git"
+  },
+  "keywords": [
+    "react",
+    "modal",
+    "dialog",
+    "headless",
+    "draggable",
+    "resizable",
+    "window"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "build:lib": "rollup -c",
+    "test": "jest",
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "start": "react-scripts start",
+    "dev": "react-scripts start"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.8",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/preset-env": "^7.26.8",
+    "@babel/preset-react": "^7.26.3",
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-node-resolve": "^14.1.0",
+    "@rollup/plugin-typescript": "^8.5.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1",
+    "rollup": "^2.79.1",
+    "typescript": "^4.9.5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
