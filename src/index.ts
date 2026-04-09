@@ -1,14 +1,16 @@
-// React API
+// React Components
 export { WindowWrapper } from "./react/WindowWrapper";
 export { WindowProvider } from "./react/WindowProvider";
+
+// React Hooks
+export { useResizableWindow } from "./core/useResizableWindow";
+export { useDraggableWindow } from "./core/useDraggableWindow";
 
 // Types
 export type { WindowRefType } from "./types/ref";
 export type { WindowConstrain } from "./types/constrain";
-export type {
-  WindowDirections,
-  WindowResizeDirection,
-} from "./types/direction";
+export type { WindowResizeDirection } from "./types/direction";
+export { WindowDirections } from "./types/direction";
 export type {
   WindowPosition,
   WindowPositionInitialValue,

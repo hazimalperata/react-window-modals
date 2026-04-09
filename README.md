@@ -35,10 +35,8 @@ import {
   WindowProvider,
   WindowWrapper,
   WindowRefType,
+  useDraggableWindow, // A custom header component that implements drag using the exposed hook
 } from 'react-window-modals';
-
-// A custom header component that implements drag using the exposed hook
-import { useDraggableWindow } from 'react-window-modals/core/useDraggableWindow';
 
 function WindowHeader() {
   const { onMouseDown, onTouchStart } = useDraggableWindow();
@@ -87,8 +85,7 @@ export default function App() {
 To enable resizing, you need to use the `useResizableWindow` hook and bind it to visual "handles" on the edges or corners of your window.
 
 ```tsx
-import { WindowDirections } from 'react-window-modals';
-import { useResizableWindow } from 'react-window-modals/core/useResizableWindow';
+import { WindowDirections, useResizableWindow } from 'react-window-modals';
 
 // A reusable resize border component
 function ResizeHandle({ direction, className }) {

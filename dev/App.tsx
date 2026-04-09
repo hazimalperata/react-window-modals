@@ -1,10 +1,10 @@
-import { WindowProvider } from "../src/react/WindowProvider.tsx";
-import { WindowWrapper } from "../src/react/WindowWrapper.tsx";
+import { WindowProvider } from "../src";
+import { WindowWrapper } from "../src";
 import { useEffect, useRef } from "react";
-import type { WindowRefType } from "../src/types/ref.ts";
-import { useDraggableWindow } from "../src/core/useDraggableWindow.ts";
-import { useResizableWindow } from "../src/core/useResizableWindow.ts";
-import { WindowDirections } from "../src/types/direction.ts";
+import type { WindowRefType } from "../src";
+import { useDraggableWindow } from "../src";
+import { useResizableWindow } from "../src";
+import { WindowDirections } from "../src";
 
 const DraggableArea = () => {
   const { onMouseDown, onTouchStart, dragging } = useDraggableWindow();
