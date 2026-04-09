@@ -1,4 +1,4 @@
-export type WindowPositionInitialValue = number | undefined;
+export type WindowPositionInitialValue = number | `%${number}` | `${number}%` | "center" | undefined;
 
 export type InitialWindowPosition = {
   x: WindowPositionInitialValue;

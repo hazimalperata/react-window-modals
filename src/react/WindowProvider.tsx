@@ -24,6 +24,7 @@ type WindowProviderProps = {
   initialSize?: InitialWindowSize; // The starting dimensions.
   constrain?: WindowConstrain; // Area boundaries for moving and resizing
   updateSizeWithContent?: boolean; // If true, size expands based on children content instead of being fixed
+  scaleMultiplier?: number; // Visual scale adjustment
 };
 
 /**
@@ -42,25 +43,31 @@ export const WindowProvider = forwardRef<
     initialOpen,
     constrain,
     updateSizeWithContent,
+    scaleMultiplier = 1,
   } = props;
 
   const [isOpen, setIsOpen] = useState(!!initialOpen);
+  
+  const [size, setSize] = useState<WindowSize>(() => ({
+    width: calcWinPercentage(initialSize?.width, window.innerWidth, undefined),
+    height: calcWinPercentage(initialSize?.height, window.innerHeight, undefined),
+  }));
+
   const [position, setPosition] = useState<WindowPosition>(() => ({
     x: calcWinPercentage(
       initialPosition?.x,
       window.innerWidth,
       calcWinPercentage(constrain?.minX, window.innerWidth, 0),
+      calcWinPercentage(initialSize?.width, window.innerWidth, 0)
     ),
     y: calcWinPercentage(
       initialPosition?.y,
       window.innerHeight,
       calcWinPercentage(constrain?.minY, window.innerHeight, 0),
+      calcWinPercentage(initialSize?.height, window.innerHeight, 0)
     ),
   }));
-  const [size, setSize] = useState<WindowSize>(() => ({
-    width: calcWinPercentage(initialSize?.width, window.innerWidth),
-    height: calcWinPercentage(initialSize?.height, window.innerHeight),
-  }));
+  
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
 
@@ -95,6 +102,7 @@ export const WindowProvider = forwardRef<
         setResizing,
         constrain,
         updateSizeWithContent,
+        scaleMultiplier,
       }}
     >
       {children}

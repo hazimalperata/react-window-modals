@@ -10,4 +10,12 @@ export const WindowDirections = {
 } as const;
 
 export type WindowResizeDirection =
-  (typeof WindowDirections)[keyof typeof WindowDirections];
+  | (typeof WindowDirections)[keyof typeof WindowDirections]
+  | "top"
+  | "right"
+  | "bottom"
+  | "left"
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right";

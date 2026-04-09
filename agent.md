@@ -36,10 +36,11 @@
 | Prop | Type | Default | Overview |
 |------|------|---------|-------------|
 | `initialOpen` | `boolean` | `false` | Mounts window logic as active or hidden. |
-| `initialPosition` | `{ x?: number\|string, y?: number\|string }` | `{ x:0, y:0 }` | Initial cartesian offsets relative to the DOM body. Strings parsed as viewport boundary percentage offsets automatically (e.g., `"%50"`). |
-| `initialSize` | `{ width?: number\|string, height?: number\|string }` | `{}` | Starting container bounds. Strings map to `%` representation calculations. |
+| `initialPosition` | `{ x, y }` | `{ x:0, y:0 }` | Initial cartesian offsets relative to the DOM body. Strings parsed as viewport boundary percentage offsets automatically (e.g., `"50%"`) or `"center"`. |
+| `initialSize` | `{ width, height }` | `{}` | Starting container bounds. Strings map to `%` representation calculations. |
 | `constrain` | `WindowConstrain` | `undefined` | Defines hard min/max limits over the viewport the modal is permitted to migrate/expand to. |
 | `updateSizeWithContent` | `boolean` | `false` | Triggers recursive inner `ResizeObserver` listener. Forces height/width states to trace internal node intrinsic scaling dynamically. |
+| `scaleMultiplier` | `number` | `1` | Scaling fallback offset for mapping coordinates within CSS `transform: scale()` node layers natively. |
 
 **Exposed Ref Object (`WindowRefType`)**:
 ```ts
@@ -101,6 +102,7 @@ type WindowContextType = {
   resizing: boolean; setResizing: (val: boolean) => void;
   constrain?: WindowConstrain;
   updateSizeWithContent?: boolean;
+  scaleMultiplier: number;
 }
 ```
 
@@ -109,9 +111,9 @@ type WindowContextType = {
 ## 3. Library Types
 
 ### 3.1 `WindowConstrain`
-Dictates bounding box collision lines. Values default to exact numeric pixel layouts unless formatted with a leading `%` to simulate standard viewport mappings.
+Dictates bounding box collision lines. Values default to exact numeric pixel layouts unless formatted with a leading/trailing `%` to simulate standard viewport mappings.
 ```ts
-type WindowConstrainValue = number | `%${number}`;
+type WindowConstrainValue = number | `%${number}` | `${number}%`;
 
 export type WindowConstrain = {
   minX?: WindowConstrainValue;
@@ -122,7 +124,7 @@ export type WindowConstrain = {
 ```
 
 ### 3.2 `WindowResizeDirection`
-Edge anchors utilized for coordinate math in `useResizableWindow()`.
+Edge anchors utilized for coordinate math in `useResizableWindow()`. Accepts standardized string parameters or enum properties strictly.
 ```ts
 export enum WindowDirections {
   TOP = "top",
@@ -134,7 +136,10 @@ export enum WindowDirections {
   BOTTOM_LEFT = "bottom-left",
   BOTTOM_RIGHT = "bottom-right",
 }
-export type WindowResizeDirection = WindowDirections;
+export type WindowResizeDirection = 
+  | WindowDirections 
+  | "top" | "right" | "bottom" | "left" 
+  | "top-left" | "top-right" | "bottom-left" | "bottom-right";
 ```
 
 ---

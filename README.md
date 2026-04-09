@@ -62,8 +62,8 @@ export default function App() {
       <WindowProvider
         ref={windowRef}
         initialOpen={false}
-        initialPosition={{ x: "20%", y: "20%" }}
-        initialSize={{ width: 400, height: 300 }}
+        initialPosition={{ x: "center", y: "center" }} // Support for pixels, CSS percentages ("50%"), or "center" 
+        initialSize={{ width: 400, height: "40%" }}
         constrain={{ minX: 0, minY: 0, maxX: "100%", maxY: "100%" }}
       >
         <WindowWrapper style={{ backgroundColor: 'white', border: '1px solid black' }}>
@@ -152,10 +152,11 @@ If you want the modal to automatically grow as its content changes without manua
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `initialOpen` | `boolean` | `false` | Should the window be rendered visible initially? |
-| `initialPosition` | `{ x, y }` | `{ x:0, y:0 }` | Initial coords. Supports numbers or percentages (e.g. `"%50"`). |
+| `initialPosition` | `{ x, y }` | `{ x:0, y:0 }` | Initial coords. Supports numbers, percentages (e.g. `"50%"` or `"%50"`), or `"center"`. |
 | `initialSize` | `{ width, height }` | `{ width: 0, height: 0 }` | Initial size. Supports numbers or percentages. |
-| `constrain` | `WindowConstrain` | `undefined` | Boundaries (`minX`, `minY`, `maxX`, `maxY`). Values can be numeric (pixels) or string percentages (e.g., `"%100"`). |
+| `constrain` | `WindowConstrain` | `undefined` | Boundaries (`minX`, `minY`, `maxX`, `maxY`). Values can be numeric (pixels) or string percentages (e.g., `"100%"`). |
 | `updateSizeWithContent` | `boolean` | `false` | Will automatically size to the boundaries of the internal React children, based on `ResizeObserver`. |
+| `scaleMultiplier` | `number` | `1` | Adjusts layout pointer calculations if the window exists inside a parent container modified by CSS `transform: scale(x)`. |
 
 ### WindowRefType
 Retrieve control methods by passing a `ref` to `<WindowProvider>`:

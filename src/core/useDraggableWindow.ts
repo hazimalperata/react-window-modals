@@ -9,11 +9,13 @@ import { calcWinPercentage } from "../utils/calcWinPercentage.ts";
  * It strictly adheres to `constrain` boundaries if they are provided in the WindowContext.
  */
 export function useDraggableWindow() {
-  const { setPosition, position, size, dragging, setDragging, constrain } =
+  const { setPosition, position, size, dragging, setDragging, constrain, scaleMultiplier } =
     useWindowContext();
 
   // Ref to hold the initial offset between the mouse click position and the window's top-left corner
   const offset = useRef<OffsetPosition>({ x: 0, y: 0 });
+  const startPosition = useRef<OffsetPosition>({ x: 0, y: 0 });
+  const rafRef = useRef<number | null>(null);
 
   /**
    * Initializes the drag action by recording the initial mouse/touch offset.
@@ -22,10 +24,8 @@ export function useDraggableWindow() {
   const startDrag = useCallback(
     (clientX: number, clientY: number) => {
       setDragging(true);
-      offset.current = {
-        x: clientX - position.x,
-        y: clientY - position.y,
-      };
+      offset.current = { x: clientX, y: clientY };
+      startPosition.current = { ...position };
     },
     [position, setDragging],
   );
@@ -54,36 +54,42 @@ export function useDraggableWindow() {
     (clientX: number, clientY: number) => {
       if (!dragging) return;
 
-      // Calculate the raw new position based on current mouse/touch coordinates and our stored offset
-      let newX = clientX - offset.current.x;
-      let newY = clientY - offset.current.y;
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
 
-      // Parse physical pixel limits. Default to unconstrained (Infinity / -Infinity) if not set.
-      const minX = calcWinPercentage(
-        constrain?.minX,
-        window.innerWidth,
-        -Infinity,
-      );
-      const minY = calcWinPercentage(
-        constrain?.minY,
-        window.innerHeight,
-        -Infinity,
-      );
-      const maxX =
-        calcWinPercentage(constrain?.maxX, window.innerWidth, Infinity) -
-        (size?.width ?? 0);
-      const maxY =
-        calcWinPercentage(constrain?.maxY, window.innerHeight, Infinity) -
-        (size?.height ?? 0);
+      rafRef.current = requestAnimationFrame(() => {
+        // Calculate the raw new position based on current mouse/touch coordinates and our stored offset
+        let newX = startPosition.current.x + (clientX - offset.current.x) / scaleMultiplier;
+        let newY = startPosition.current.y + (clientY - offset.current.y) / scaleMultiplier;
 
-      // Clamp new positions within the derived MIN/MAX bounds
-      newX = Math.min(Math.max(newX, minX), maxX);
-      newY = Math.min(Math.max(newY, minY), maxY);
+        // Parse physical pixel limits. Default to unconstrained (Infinity / -Infinity) if not set.
+        const minX = calcWinPercentage(
+          constrain?.minX,
+          window.innerWidth,
+          -Infinity,
+        );
+        const minY = calcWinPercentage(
+          constrain?.minY,
+          window.innerHeight,
+          -Infinity,
+        );
+        const maxX =
+          calcWinPercentage(constrain?.maxX, window.innerWidth, Infinity) -
+          (size?.width ?? 0);
+        const maxY =
+          calcWinPercentage(constrain?.maxY, window.innerHeight, Infinity) -
+          (size?.height ?? 0);
 
-      // Persist to context
-      setPosition({ x: newX, y: newY });
+        // Clamp new positions within the derived MIN/MAX bounds
+        newX = Math.min(Math.max(newX, minX), maxX);
+        newY = Math.min(Math.max(newY, minY), maxY);
+
+        // Persist to context
+        setPosition({ x: newX, y: newY });
+      });
     },
-    [dragging, setPosition, size?.width, size?.height, constrain],
+    [dragging, setPosition, size?.width, size?.height, constrain, scaleMultiplier],
   );
 
   const onMouseMove = useCallback(

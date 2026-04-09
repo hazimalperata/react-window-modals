@@ -1,4 +1,4 @@
-type WindowConstrainValue = number | `%${number}`;
+export type WindowConstrainValue = number | `%${number}` | `${number}%`;
 
 export type WindowConstrain = {
   minX?: WindowConstrainValue;

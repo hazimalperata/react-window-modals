@@ -1,10 +1,7 @@
 import { useWindowContext } from "./useWindowContext.ts";
 import { useRef, useState } from "react";
 import { calcWinPercentage } from "../utils/calcWinPercentage.ts";
-import {
-  WindowDirections,
-  type WindowResizeDirection,
-} from "../types/direction.ts";
+import type { WindowResizeDirection } from "../types/direction.ts";
 
 /**
  * Hook to manage window resizing logic.
@@ -22,12 +19,14 @@ export const useResizableWindow = (direction: WindowResizeDirection) => {
     constrain,
     resizing,
     setResizing,
+    scaleMultiplier,
   } = useWindowContext();
   const [directionResizing, setDirectionResizing] =
     useState<WindowResizeDirection | null>(null);
 
   // Store initial state before the resize starts for correct mathematical diffing
   const start = useRef({ x: 0, y: 0, width: 0, height: 0, left: 0, top: 0 });
+  const rafRef = useRef<number | null>(null);
 
   /**
    * Initializes resizing action, records initial snapshot of size and position.
@@ -49,72 +48,80 @@ export const useResizableWindow = (direction: WindowResizeDirection) => {
     };
 
     const moveHandler = (ev: MouseEvent | TouchEvent) => {
-      const currX = "touches" in ev ? ev.touches[0].clientX : ev.clientX;
-      const currY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
-      let newWidth = start.current.width;
-      let newHeight = start.current.height;
-      let newLeft = start.current.left;
-      let newTop = start.current.top;
+      rafRef.current = requestAnimationFrame(() => {
+        const currX = "touches" in ev ? ev.touches[0].clientX : ev.clientX;
+        const currY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
 
-      // Handle horizontal resize: expanding towards right or expanding towards left
-      // Expanding towards left updates both width and x-position of the window.
-      if (direction === WindowDirections.RIGHT)
-        newWidth = start.current.width + (currX - start.current.x);
-      if (direction === WindowDirections.LEFT) {
-        newWidth = start.current.width - (currX - start.current.x);
-        newLeft = start.current.left + (currX - start.current.x);
-      }
+        let newWidth = start.current.width;
+        let newHeight = start.current.height;
+        let newLeft = start.current.left;
+        let newTop = start.current.top;
 
-      // Handle vertical resize: expanding towards bottom or expanding towards top
-      // Expanding towards top updates both height and y-position of the window.
-      if (direction === WindowDirections.BOTTOM)
-        newHeight = start.current.height + (currY - start.current.y);
-      if (direction === WindowDirections.TOP) {
-        newHeight = start.current.height - (currY - start.current.y);
-        newTop = start.current.top + (currY - start.current.y);
-      }
+        const deltaX = (currX - start.current.x) / scaleMultiplier;
+        const deltaY = (currY - start.current.y) / scaleMultiplier;
 
-      // Constraint uygula
-      if (constrain) {
-        if (constrain.minX)
-          newWidth = Math.max(
-            newWidth,
-            calcWinPercentage(constrain?.minX, window.innerWidth, -Infinity),
-          );
-        if (constrain.maxX)
-          newWidth = Math.min(
-            newWidth,
-            calcWinPercentage(constrain?.maxX, window.innerWidth, Infinity),
-          );
-        if (constrain.minY)
-          newHeight = Math.max(
-            newHeight,
-            calcWinPercentage(constrain?.minY, window.innerHeight, -Infinity),
-          );
-        if (constrain.maxY)
-          newHeight = Math.min(
-            newHeight,
-            calcWinPercentage(constrain?.maxY, window.innerHeight, Infinity),
-          );
+        const isRight = typeof direction === "string" && direction.includes("right");
+        const isLeft = typeof direction === "string" && direction.includes("left");
+        const isTop = typeof direction === "string" && direction.includes("top");
+        const isBottom = typeof direction === "string" && direction.includes("bottom");
 
-        // Ekran dışına taşma
-        if (newLeft < 0) {
-          newWidth += newLeft;
-          newLeft = 0;
+        // Handle horizontal resize
+        if (isRight) newWidth = start.current.width + deltaX;
+        if (isLeft) {
+          newWidth = start.current.width - deltaX;
+          newLeft = start.current.left + deltaX;
         }
-        if (newTop < 0) {
-          newHeight += newTop;
-          newTop = 0;
-        }
-        if (newLeft + newWidth > window.innerWidth)
-          newWidth = window.innerWidth - newLeft;
-        if (newTop + newHeight > window.innerHeight)
-          newHeight = window.innerHeight - newTop;
-      }
 
-      setSize({ width: newWidth, height: newHeight });
-      setPosition({ x: newLeft, y: newTop });
+        // Handle vertical resize
+        if (isBottom) newHeight = start.current.height + deltaY;
+        if (isTop) {
+          newHeight = start.current.height - deltaY;
+          newTop = start.current.top + deltaY;
+        }
+
+        // Constraint uygula
+        if (constrain) {
+          if (constrain.minX)
+            newWidth = Math.max(
+              newWidth,
+              calcWinPercentage(constrain?.minX, window.innerWidth, -Infinity),
+            );
+          if (constrain.maxX)
+            newWidth = Math.min(
+              newWidth,
+              calcWinPercentage(constrain?.maxX, window.innerWidth, Infinity),
+            );
+          if (constrain.minY)
+            newHeight = Math.max(
+              newHeight,
+              calcWinPercentage(constrain?.minY, window.innerHeight, -Infinity),
+            );
+          if (constrain.maxY)
+            newHeight = Math.min(
+              newHeight,
+              calcWinPercentage(constrain?.maxY, window.innerHeight, Infinity),
+            );
+
+          // Ekran dışına taşma
+          if (newLeft < 0) {
+            newWidth += newLeft;
+            newLeft = 0;
+          }
+          if (newTop < 0) {
+            newHeight += newTop;
+            newTop = 0;
+          }
+          if (newLeft + newWidth > window.innerWidth)
+            newWidth = window.innerWidth - newLeft;
+          if (newTop + newHeight > window.innerHeight)
+            newHeight = window.innerHeight - newTop;
+        }
+
+        setSize({ width: newWidth, height: newHeight });
+        setPosition({ x: newLeft, y: newTop });
+      });
     };
 
     const stopHandler = () => {

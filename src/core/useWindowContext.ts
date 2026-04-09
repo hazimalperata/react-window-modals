@@ -21,6 +21,7 @@ type WindowContextType = {
   setResizing: (resizing: boolean) => void;
   constrain: WindowConstrain | undefined; // Constraints defining min/max boundaries for positioning and resizing
   updateSizeWithContent: boolean | undefined; // If true, the window size automatically adjusts to fit its children content
+  scaleMultiplier: number; // For scaling adjustments
 };
 
 /**

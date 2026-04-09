@@ -3,7 +3,7 @@ export type WindowSize = {
   height: number | undefined;
 };
 
-export type WindowSizeInitialValue = number | `%${number}`;
+export type WindowSizeInitialValue = number | `%${number}` | `${number}%`;
 
 export type InitialWindowSize = {
   width: WindowSizeInitialValue;
