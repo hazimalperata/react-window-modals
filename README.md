@@ -81,6 +81,66 @@ export default function App() {
 }
 ```
 
+## Advanced Usage & Edge Cases
+
+### 1. Resizing Setup with `useResizableWindow`
+To enable resizing, you need to use the `useResizableWindow` hook and bind it to visual "handles" on the edges or corners of your window.
+
+```tsx
+import { WindowDirections } from 'react-window-modals';
+import { useResizableWindow } from 'react-window-modals/core/useResizableWindow';
+
+// A reusable resize border component
+function ResizeHandle({ direction, className }) {
+  const { onResizeStart } = useResizableWindow(direction);
+  return (
+    <div
+      onMouseDown={onResizeStart}
+      onTouchStart={onResizeStart}
+      className={className}
+      style={{ position: 'absolute' }}
+    />
+  );
+}
+
+// Inside your WindowWrapper:
+<WindowWrapper style={{ position: 'relative', border: '1px solid black' }}>
+  {/* Right Border for resizing Width */}
+  <ResizeHandle 
+    direction={WindowDirections.RIGHT} 
+    className="resize-right" 
+    style={{ right: 0, top: 0, width: '10px', height: '100%', cursor: 'e-resize' }} 
+  />
+  
+  {/* Bottom Border for resizing Height */}
+  <ResizeHandle 
+    direction={WindowDirections.BOTTOM} 
+    className="resize-bottom" 
+    style={{ left: 0, bottom: 0, width: '100%', height: '10px', cursor: 's-resize' }} 
+  />
+  
+  <div>Window Content</div>
+</WindowWrapper>
+```
+
+### 2. Auto-Sizing to Content (`updateSizeWithContent`)
+If you want the modal to automatically grow as its content changes without manually setting dimensions, you can use `updateSizeWithContent`.
+
+```tsx
+<WindowProvider
+  initialOpen={true}
+  initialPosition={{ x: "center", y: "center" }} // You can parse offsets easily
+  updateSizeWithContent={true} // Automatically track the intrinsic heights of children
+>
+  <WindowWrapper style={{ backgroundColor: 'white' }}>
+    <div style={{ padding: '20px' }}>
+      <h3>Dynamic Content Box</h3>
+      <p>If you add more text or nodes here dynamically, the window boundary will expand perfectly to fit the content via ResizeObserver tracking.</p>
+    </div>
+  </WindowWrapper>
+</WindowProvider>
+```
+
 ## Advanced Customization (Hooks)
 
 `react-window-modals` provides hooks to build custom window interactions. These hooks *must* be called from a component rendered inside `<WindowProvider>`.
