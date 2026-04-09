@@ -1,113 +1,74 @@
-import { WindowProvider } from "../src";
-import { WindowWrapper } from "../src";
-import { useEffect, useRef } from "react";
-import type { WindowRefType } from "../src";
-import { useDraggableWindow } from "../src";
-import { useResizableWindow } from "../src";
-import { WindowDirections } from "../src";
+import { useRef } from "react";
+import {
+  WindowProvider,
+  WindowWrapper,
+  type WindowRefType,
+  useDraggableWindow,
+  useResizableWindow,
+} from "react-window-modals";
 
-const DraggableArea = () => {
-  const { onMouseDown, onTouchStart, dragging } = useDraggableWindow();
+function WindowResizer() {
+  const { onResizeStart } = useResizableWindow("left");
 
-  useEffect(() => {
-    if (dragging) {
-      document.body.style.cursor = "grabbing";
-    } else {
-      document.body.style.cursor = "";
-    }
-  }, [dragging]);
+  return (
+    <span
+      onMouseDown={onResizeStart}
+      onTouchStart={onResizeStart}
+      style={{
+        cursor: "w-resize",
+        width: 1,
+        position: "absolute",
+        top: 0,
+        left: 0,
+        bottom: 0,
+      }}
+    />
+  );
+}
+
+function WindowHeader() {
+  const { onMouseDown, onTouchStart } = useDraggableWindow();
 
   return (
     <div
       onMouseDown={onMouseDown}
       onTouchStart={onTouchStart}
-      style={{ backgroundColor: dragging ? "red" : "blue" }}
+      style={{ cursor: "move", background: "#ccc", padding: "10px" }}
     >
-      Suruklemelik alan
+      Drag Me
     </div>
   );
-};
+}
 
-const ResizableArea = () => {
-  const { onResizeStart, resizing, directionResizing } = useResizableWindow(
-    WindowDirections.LEFT,
-  );
-
-  return (
-    <div
-      onMouseDown={onResizeStart}
-      onTouchStart={onResizeStart}
-      style={{ backgroundColor: resizing ? "red" : "blue" }}
-    >
-      Suruklemelik alan
-    </div>
-  );
-};
-
-const ResizableArea2 = () => {
-  const { onResizeStart, resizing, directionResizing } = useResizableWindow(
-    WindowDirections.RIGHT,
-  );
-
-  return (
-    <div
-      onMouseDown={onResizeStart}
-      onTouchStart={onResizeStart}
-      style={{
-        backgroundColor:
-          directionResizing === WindowDirections.RIGHT ? "red" : "blue",
-      }}
-    >
-      Suruklemelik alan
-    </div>
-  );
-};
-
-const WindowInside = () => {
-  return (
-    <div style={{ backgroundColor: "red" }}>
-      <DraggableArea />
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-        }}
-      >
-        <ResizableArea />
-        <ResizableArea2 />
-      </div>
-      <div>Selam, pencerenin icinden yaziyorum</div>
-    </div>
-  );
-};
-
-const App = () => {
+export default function App() {
   const windowRef = useRef<WindowRefType>(null);
 
   return (
-    <>
+    <div>
+      <button onClick={() => windowRef.current?.open()}>Open Window</button>
+
       <WindowProvider
-        initialOpen
-        updateSizeWithContent
         ref={windowRef}
-        constrain={{
-          minX: 0,
-          minY: 0,
-          maxX: window.innerWidth,
-          maxY: window.innerHeight,
-        }}
+        initialOpen={false}
+        initialPosition={{ x: "center", y: "center" }} // Support for pixels, CSS percentages ("50%"), or "center"
+        initialSize={{ width: 400, height: "40%" }}
+        constrain={{ minX: 0, minY: 0, maxX: "100%", maxY: "100%" }}
       >
-        <WindowWrapper>
-          <WindowInside />
+        <WindowWrapper
+          style={{
+            position: "relative",
+            backgroundColor: "white",
+            border: "1px solid black",
+          }}
+        >
+          <WindowHeader />
+          <WindowResizer />
+          <div style={{ padding: "20px" }}>
+            <p>Welcome to the custom react window modal!</p>
+            <button onClick={() => windowRef.current?.close()}>Close</button>
+          </div>
         </WindowWrapper>
       </WindowProvider>
-      <div>Selam?</div>
-      <button onClick={() => windowRef.current?.toggle()}>
-        Bas ve acilsin
-      </button>
-    </>
+    </div>
   );
-};
-
-export default App;
+}
