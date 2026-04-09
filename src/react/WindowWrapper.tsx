@@ -1,10 +1,17 @@
 import { useWindowContext } from "../core/useWindowContext.ts";
 import { type PropsWithChildren, useEffect, useRef } from "react";
 
+/**
+ * Props for WindowWrapper.
+ */
 type WindowWrapperProps = {
-  style?: React.CSSProperties;
+  style?: React.CSSProperties; // Optional inline styles. Positioning and size will be controlled primarily by WindowContext.
 };
 
+/**
+ * The Wrapper component that physically renders and translates your content.
+ * It reads position, size, and visibility states from the WindowProvider to update the DOM.
+ */
 export function WindowWrapper(props: PropsWithChildren<WindowWrapperProps>) {
   const { children, style } = props;
 
@@ -14,7 +21,7 @@ export function WindowWrapper(props: PropsWithChildren<WindowWrapperProps>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // İçeriğe göre boyut güncelleme
+  // ResizeObserver to track intrinsic content size changes when `updateSizeWithContent` is enabled.
   useEffect(() => {
     if (!updateSizeWithContent || !contentRef.current || !isOpen || resizing)
       return;

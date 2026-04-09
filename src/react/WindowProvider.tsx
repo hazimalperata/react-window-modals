@@ -15,14 +15,22 @@ import type { InitialWindowSize, WindowSize } from "../types/size.ts";
 import type { WindowRefType } from "../types/ref.ts";
 import type { WindowConstrain } from "../types/constrain.ts";
 
+/**
+ * Props for the WindowProvider component.
+ */
 type WindowProviderProps = {
-  initialOpen?: boolean;
-  initialPosition?: InitialWindowPosition;
-  initialSize?: InitialWindowSize;
-  constrain?: WindowConstrain;
-  updateSizeWithContent?: boolean;
+  initialOpen?: boolean; // Whether the window should be initially open
+  initialPosition?: InitialWindowPosition; // The starting position to mount the window. Can be pixels or percentages.
+  initialSize?: InitialWindowSize; // The starting dimensions.
+  constrain?: WindowConstrain; // Area boundaries for moving and resizing
+  updateSizeWithContent?: boolean; // If true, size expands based on children content instead of being fixed
 };
 
+/**
+ * The core Provider that acts as a boundary for a single window instance.
+ * It manages the local state (position, size, visibility, interactions) and 
+ * exposes an API via ref for external control.
+ */
 export const WindowProvider = forwardRef<
   WindowRefType,
   PropsWithChildren<WindowProviderProps>
@@ -61,6 +69,7 @@ export const WindowProvider = forwardRef<
     else setIsOpen(newValue);
   }, []);
 
+  // Hook up external ref controls (open/close/toggle)
   useImperativeHandle(
     ref,
     () => ({

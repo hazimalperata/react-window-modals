@@ -6,6 +6,13 @@ import {
   type WindowResizeDirection,
 } from "../types/direction.ts";
 
+/**
+ * Hook to manage window resizing logic.
+ * Call this hook with a specific resize direction (e.g., TOP, RIGHT, BOTTOM, LEFT) to generate resize handlers.
+ * Ensures the window layout respects boundaries (constrains).
+ *
+ * @param direction - The edge being pulled to resize the window.
+ */
 export const useResizableWindow = (direction: WindowResizeDirection) => {
   const {
     size,
@@ -19,8 +26,13 @@ export const useResizableWindow = (direction: WindowResizeDirection) => {
   const [directionResizing, setDirectionResizing] =
     useState<WindowResizeDirection | null>(null);
 
+  // Store initial state before the resize starts for correct mathematical diffing
   const start = useRef({ x: 0, y: 0, width: 0, height: 0, left: 0, top: 0 });
 
+  /**
+   * Initializes resizing action, records initial snapshot of size and position.
+   * Attach this handler to your resize handles `onMouseDown` or `onTouchStart`.
+   */
   const onResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
@@ -30,8 +42,8 @@ export const useResizableWindow = (direction: WindowResizeDirection) => {
     start.current = {
       x: clientX,
       y: clientY,
-      width: size.width,
-      height: size.height,
+      width: size.width ?? 0, // Fallback width
+      height: size.height ?? 0, // Fallback height
       left: position.x,
       top: position.y,
     };
@@ -45,7 +57,8 @@ export const useResizableWindow = (direction: WindowResizeDirection) => {
       let newLeft = start.current.left;
       let newTop = start.current.top;
 
-      // Yatay resize
+      // Handle horizontal resize: expanding towards right or expanding towards left
+      // Expanding towards left updates both width and x-position of the window.
       if (direction === WindowDirections.RIGHT)
         newWidth = start.current.width + (currX - start.current.x);
       if (direction === WindowDirections.LEFT) {
@@ -53,7 +66,8 @@ export const useResizableWindow = (direction: WindowResizeDirection) => {
         newLeft = start.current.left + (currX - start.current.x);
       }
 
-      // Dikey resize
+      // Handle vertical resize: expanding towards bottom or expanding towards top
+      // Expanding towards top updates both height and y-position of the window.
       if (direction === WindowDirections.BOTTOM)
         newHeight = start.current.height + (currY - start.current.y);
       if (direction === WindowDirections.TOP) {

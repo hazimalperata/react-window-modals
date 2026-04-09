@@ -3,12 +3,22 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import type { OffsetPosition } from "../types/position.ts";
 import { calcWinPercentage } from "../utils/calcWinPercentage.ts";
 
+/**
+ * Hook to manage window dragging logic.
+ * It listens to mouse and touch events to update the window's position based on user interaction.
+ * It strictly adheres to `constrain` boundaries if they are provided in the WindowContext.
+ */
 export function useDraggableWindow() {
   const { setPosition, position, size, dragging, setDragging, constrain } =
     useWindowContext();
 
+  // Ref to hold the initial offset between the mouse click position and the window's top-left corner
   const offset = useRef<OffsetPosition>({ x: 0, y: 0 });
 
+  /**
+   * Initializes the drag action by recording the initial mouse/touch offset.
+   * This ensures the window doesn't jump to the cursor's location but moves relative to where it was grabbed.
+   */
   const startDrag = useCallback(
     (clientX: number, clientY: number) => {
       setDragging(true);
@@ -37,13 +47,18 @@ export function useDraggableWindow() {
     [startDrag],
   );
 
+  /**
+   * Core movement logic. Calculates new coordinates, applies constraints, and sets the state.
+   */
   const onMove = useCallback(
     (clientX: number, clientY: number) => {
       if (!dragging) return;
 
+      // Calculate the raw new position based on current mouse/touch coordinates and our stored offset
       let newX = clientX - offset.current.x;
       let newY = clientY - offset.current.y;
 
+      // Parse physical pixel limits. Default to unconstrained (Infinity / -Infinity) if not set.
       const minX = calcWinPercentage(
         constrain?.minX,
         window.innerWidth,
@@ -61,9 +76,11 @@ export function useDraggableWindow() {
         calcWinPercentage(constrain?.maxY, window.innerHeight, Infinity) -
         (size?.height ?? 0);
 
+      // Clamp new positions within the derived MIN/MAX bounds
       newX = Math.min(Math.max(newX, minX), maxX);
       newY = Math.min(Math.max(newY, minY), maxY);
 
+      // Persist to context
       setPosition({ x: newX, y: newY });
     },
     [dragging, setPosition, size?.width, size?.height, constrain],

@@ -1,12 +1,17 @@
-import type { WindowSizeInitialValue } from "../types/size.ts";
+import { resolveInitialValue } from "./resolveInitialValue.ts";
 
+/**
+ * value: number | string | undefined
+ * total: toplam boyut
+ * fallback: number
+ */
 export const calcWinPercentage = (
-  value: WindowSizeInitialValue | undefined,
+  value: number | `%${number}` | undefined,
   total: number,
-  initial = undefined,
-) => {
-  if (value === undefined) return initial;
-  if (typeof value === "number") return value;
-  const numeric = parseFloat(value.toString().replace("%", ""));
-  return (numeric / 100) * total;
+  fallback = 0,
+): number => {
+  const resolved = resolveInitialValue(value, fallback);
+  return typeof value === "string" && value.endsWith("%")
+    ? resolved * total
+    : resolved;
 };

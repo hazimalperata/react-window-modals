@@ -1,75 +1,124 @@
-# React + TypeScript + Vite
+# react-window-modals
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A flexible, customizable, and lightweight React library for creating draggable, resizable, and context-managed window modals. Perfect for building desktop-like experiences on the web.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Draggable & Resizable**: Full support for intuitive drag and resize operations.
+- **Constraints Handling**: Keep windows confined within specified boundaries (pixels or percentages).
+- **Responsive Sizing**: Initialize windows with specific pixel sizes or screen percentages (`"50%"` etc).
+- **Auto-Content Sizing**: Optional `updateSizeWithContent` property allowing a window to grow based on its children's dimensions.
+- **Hooks & Context**: Headless logic exported as hooks (`useDraggableWindow`, `useResizableWindow`) to let you build your own UI.
+- **TypeScript**: First-class TS support with strict typings.
 
-## React Compiler
+## Installation
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+npm install react-window-modals
+```
+or
+```bash
+yarn add react-window-modals
+```
+or
+```bash
+pnpm add react-window-modals
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Basic Usage
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+The library operates fundamentally using a `<WindowProvider>` to establish the state, and `<WindowWrapper>` to physically render the movable/resizable box. You add your own visual UI (borders, headers, resize handles) inside the Wrapper.
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```tsx
+import { useRef } from 'react';
+import {
+  WindowProvider,
+  WindowWrapper,
+  WindowRefType,
+} from 'react-window-modals';
+
+// A custom header component that implements drag using the exposed hook
+import { useDraggableWindow } from 'react-window-modals/core/useDraggableWindow';
+
+function WindowHeader() {
+  const { onMouseDown, onTouchStart } = useDraggableWindow();
+  
+  return (
+    <div 
+      onMouseDown={onMouseDown} 
+      onTouchStart={onTouchStart}
+      style={{ cursor: 'move', background: '#ccc', padding: '10px' }}
+    >
+      Drag Me
+    </div>
+  );
+}
+
+export default function App() {
+  const windowRef = useRef<WindowRefType>(null);
+
+  return (
+    <div>
+      <button onClick={() => windowRef.current?.open()}>Open Window</button>
+
+      <WindowProvider
+        ref={windowRef}
+        initialOpen={false}
+        initialPosition={{ x: "20%", y: "20%" }}
+        initialSize={{ width: 400, height: 300 }}
+        constrain={{ minX: 0, minY: 0, maxX: "100%", maxY: "100%" }}
+      >
+        <WindowWrapper style={{ backgroundColor: 'white', border: '1px solid black' }}>
+          <WindowHeader />
+          <div style={{ padding: '20px' }}>
+            <p>Welcome to the custom react window modal!</p>
+            <button onClick={() => windowRef.current?.close()}>Close</button>
+          </div>
+        </WindowWrapper>
+      </WindowProvider>
+    </div>
+  );
+}
 ```
+
+## Advanced Customization (Hooks)
+
+`react-window-modals` provides hooks to build custom window interactions. These hooks *must* be called from a component rendered inside `<WindowProvider>`.
+
+- `useDraggableWindow()`: Returns `{ onMouseDown, onTouchStart, dragging }`. Attach the handlers to a header/handle element.
+- `useResizableWindow(direction)`: Supply a direction (`TOP`, `BOTTOM`, `LEFT`, `RIGHT`) to receive `{ onResizeStart, resizing, directionResizing }`. Attach to a resize handler border or corner.
+- `useWindowContext()`: Provides all window states directly if you want full manual control over X/Y `position` and `size`.
+
+## Props & Types
+
+### WindowProvider Props
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `initialOpen` | `boolean` | `false` | Should the window be rendered visible initially? |
+| `initialPosition` | `{ x, y }` | `{ x:0, y:0 }` | Initial coords. Supports numbers or percentages (e.g. `"%50"`). |
+| `initialSize` | `{ width, height }` | `{ width: 0, height: 0 }` | Initial size. Supports numbers or percentages. |
+| `constrain` | `WindowConstrain` | `undefined` | Boundaries (`minX`, `minY`, `maxX`, `maxY`). Values can be numeric (pixels) or string percentages (e.g., `"%100"`). |
+| `updateSizeWithContent` | `boolean` | `false` | Will automatically size to the boundaries of the internal React children, based on `ResizeObserver`. |
+
+### WindowRefType
+Retrieve control methods by passing a `ref` to `<WindowProvider>`:
+- `open()`: Opens the window.
+- `close()`: Closes the window.
+- `toggle(newValue?: boolean)`: Toggles state, optionally forced.
+
+## Development & Contribution
+
+1. **Clone repo**: `git clone <repository_url>`
+2. **Install deps**: `npm install`
+3. **Build**: `npm run build`
+4. **Dev Server**: Standard React development via Vite (if configured) or testing directly in your examples folder.
+
+Feel free to open an issue or submit a pull request if you want to add a feature or fix a bug. 
+
+**Tips for contributors:**
+- Ensure window state hooks run strictly inside `<WindowProvider>`.
+- The `calcWinPercentage` util evaluates positioning offsets gracefully mapping strings (`"50%"`) to pixel math on the fly. Don't bypass it.
+
+---
+
+**License**: MIT

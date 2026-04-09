@@ -1,5 +1,10 @@
 {
   "files": [],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "ignoreDeprecations": "6.0",
+    "allowImportingTsExtensions": true
+  },
   "references": [
     {
       "path": "./tsconfig.app.json"
