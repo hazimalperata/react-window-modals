@@ -81,6 +81,11 @@ export const useResizableWindow = (direction: WindowResizeDirection) => {
           newTop = start.current.top + deltaY;
         }
 
+        // Aspect Ratio handling (simple version)
+        // If we want to maintain aspect ratio, we would need an aspect ratio prop
+        // For now, we ensure that diagonal resizing (e.g. TOP_LEFT) doesn't break
+        // by handling both dimensions independently.
+
         // Constraint uygula
         if (constrain) {
           if (constrain.minX)
@@ -103,6 +108,10 @@ export const useResizableWindow = (direction: WindowResizeDirection) => {
               newHeight,
               calcWinPercentage(constrain?.maxY, window.innerHeight, Infinity),
             );
+          if (constrain.minWidth) newWidth = Math.max(newWidth, constrain.minWidth);
+          if (constrain.minHeight) newHeight = Math.max(newHeight, constrain.minHeight);
+          if (constrain.maxWidth) newWidth = Math.min(newWidth, constrain.maxWidth);
+          if (constrain.maxHeight) newHeight = Math.min(newHeight, constrain.maxHeight);
 
           // Ekran dışına taşma
           if (newLeft < 0) {

@@ -5,4 +5,13 @@ export type WindowConstrain = {
   minY?: WindowConstrainValue;
   maxX?: WindowConstrainValue;
   maxY?: WindowConstrainValue;
+  minWidth?: number;
+  minHeight?: number;
+  maxWidth?: number;
+  maxHeight?: number;
+  snap?: {
+    edges?: boolean;
+    gridSize?: number;
+    threshold?: number;
+  };
 };

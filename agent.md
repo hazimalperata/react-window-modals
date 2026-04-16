@@ -2,7 +2,7 @@
 
 ## Meta
 - **Package**: `react-window-modals`
-- **Version**: `0.1.0`
+- **Version**: `0.2.0`
 - **Language**: `TypeScript` / `React`
 - **Architecture**: Headless state management with strict bounds configuration.
 - **Purpose**: Exposes unstyled logic and minimal wrappers for building draggable, resizable, bound-constrained window/modal elements in React. Maintains state through a React Context provider to decouple internal mathematical logic from the physical UI implementation.

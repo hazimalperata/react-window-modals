@@ -1,5 +1,6 @@
 import { useWindowContext } from "../core/useWindowContext.ts";
 import { type PropsWithChildren, useEffect, useRef } from "react";
+import { useWindowManager } from "../core/useWindowManager.ts";
 
 /**
  * Props for WindowWrapper.
@@ -15,11 +16,24 @@ type WindowWrapperProps = {
 export function WindowWrapper(props: PropsWithChildren<WindowWrapperProps>) {
   const { children, style } = props;
 
-  const { isOpen, position, size, setSize, updateSizeWithContent, resizing } =
-    useWindowContext();
+  const {
+    isOpen,
+    position,
+    size,
+    setSize,
+    updateSizeWithContent,
+    resizing,
+    zIndex,
+    id,
+    activateOnMouseEnter,
+    className,
+    style: contextStyle,
+    setIsFocused,
+  } = useWindowContext();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const { bringToFront } = useWindowManager();
 
   // ResizeObserver to track intrinsic content size changes when `updateSizeWithContent` is enabled.
   useEffect(() => {
@@ -46,6 +60,17 @@ export function WindowWrapper(props: PropsWithChildren<WindowWrapperProps>) {
   return (
     <div
       ref={containerRef}
+      data-window-id={id}
+      className={className}
+      onMouseDown={() => {
+        bringToFront(id);
+        setIsFocused(true);
+      }}
+      onMouseEnter={() => {
+        if (activateOnMouseEnter) bringToFront(id);
+      }}
+      onBlur={() => setIsFocused(false)}
+      tabIndex={-1}
       style={{
         display: isOpen ? "block" : "none",
         position: "absolute",
@@ -55,10 +80,15 @@ export function WindowWrapper(props: PropsWithChildren<WindowWrapperProps>) {
         willChange: "transform",
         height: size.height,
         width: size.width,
+        zIndex: zIndex,
+        boxSizing: "border-box",
+        ...contextStyle,
         ...style,
       }}
     >
-      <div ref={contentRef}>{children}</div>
+      <div ref={contentRef} style={{ width: "100%", height: "100%" }}>
+        {children}
+      </div>
     </div>
   );
 }

@@ -63,6 +63,11 @@ export function useDraggableWindow() {
         let newX = startPosition.current.x + (clientX - offset.current.x) / scaleMultiplier;
         let newY = startPosition.current.y + (clientY - offset.current.y) / scaleMultiplier;
 
+        // Get border width if exists
+        const container = document.querySelector(`[data-window-id]`) as HTMLElement; // Assuming we can identify the container
+        const borderX = container ? parseInt(getComputedStyle(container).borderLeftWidth) + parseInt(getComputedStyle(container).borderRightWidth) : 0;
+        const borderY = container ? parseInt(getComputedStyle(container).borderTopWidth) + parseInt(getComputedStyle(container).borderBottomWidth) : 0;
+
         // Parse physical pixel limits. Default to unconstrained (Infinity / -Infinity) if not set.
         const minX = calcWinPercentage(
           constrain?.minX,
@@ -76,14 +81,31 @@ export function useDraggableWindow() {
         );
         const maxX =
           calcWinPercentage(constrain?.maxX, window.innerWidth, Infinity) -
-          (size?.width ?? 0);
+          ((size?.width ?? 0) + borderX);
         const maxY =
           calcWinPercentage(constrain?.maxY, window.innerHeight, Infinity) -
-          (size?.height ?? 0);
+          ((size?.height ?? 0) + borderY);
 
         // Clamp new positions within the derived MIN/MAX bounds
         newX = Math.min(Math.max(newX, minX), maxX);
         newY = Math.min(Math.max(newY, minY), maxY);
+
+        // Snap logic
+        if (constrain?.snap) {
+          const { edges, gridSize, threshold = 10 } = constrain.snap;
+          if (edges) {
+            if (Math.abs(newX) < threshold) newX = 0;
+            if (Math.abs(newX + (size?.width ?? 0) - window.innerWidth) < threshold)
+              newX = window.innerWidth - (size?.width ?? 0);
+            if (Math.abs(newY) < threshold) newY = 0;
+            if (Math.abs(newY + (size?.height ?? 0) - window.innerHeight) < threshold)
+              newY = window.innerHeight - (size?.height ?? 0);
+          }
+          if (gridSize) {
+            newX = Math.round(newX / gridSize) * gridSize;
+            newY = Math.round(newY / gridSize) * gridSize;
+          }
+        }
 
         // Persist to context
         setPosition({ x: newX, y: newY });

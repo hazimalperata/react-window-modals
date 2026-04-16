@@ -19,9 +19,22 @@ type WindowContextType = {
   setDragging: (dragging: boolean) => void;
   resizing: boolean; // Indicates if the window is currently being resized
   setResizing: (resizing: boolean) => void;
+  isMinimized: boolean;
+  setIsMinimized: (minimized: boolean) => void;
+  isMaximized: boolean;
+  setIsMaximized: (maximized: boolean) => void;
+  zIndex: number;
+  setZIndex: (zIndex: number) => void;
+  isFocused: boolean;
+  setIsFocused: (focused: boolean) => void;
+  isActive: boolean;
+  id: string;
+  activateOnMouseEnter: boolean;
   constrain: WindowConstrain | undefined; // Constraints defining min/max boundaries for positioning and resizing
   updateSizeWithContent: boolean | undefined; // If true, the window size automatically adjusts to fit its children content
   scaleMultiplier: number; // For scaling adjustments
+  className?: string;
+  style?: React.CSSProperties;
 };
 
 /**
@@ -31,7 +44,7 @@ type WindowContextType = {
 export const WindowContext = createContext<WindowContextType | null>(null);
 
 /**
- * Hook to access the window context. 
+ * Hook to access the window context.
  * Must be used within a component wrapped by <WindowProvider>.
  */
 export const useWindowContext = () => {
