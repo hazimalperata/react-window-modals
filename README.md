@@ -1,20 +1,58 @@
 # react-window-modals
 
-A flexible, customizable, and lightweight headless React library for creating draggable, resizable, and context-managed window modals. Perfect for building desktop-like experiences on the web.
+## Not a modal library. A window manager for React.
+
+A headless, desktop-like window management system for building complex, multi-window user interfaces in React
+applications.
+
+---
+
+## 🎯 Use Cases
+
+* Admin dashboards with multiple panels
+* Web-based IDEs and developer tools
+* Trading platforms with floating widgets
+* Multi-tasking SaaS applications
+
+---
+
+## Why react-window-modals?
+
+Traditional modal libraries are:
+
+* Single-instance
+* Blocking
+* Designed for simple dialogs
+
+**react-window-modals** is different:
+
+* Multiple independent windows
+* Non-blocking interactions
+* Desktop-like experience inside the browser
+
+It provides the heavy lifting (dragging, resizing, z-index, constraints) while giving you full control over UI and
+styling.
 
 ---
 
 ## 🚀 Features
 
-- **Headless Architecture**: You bring the UI, we handle the complex math (dragging, resizing, constraints).
-- **Draggable & Resizable**: Intuitive interaction hooks.
-- **Constraint System**: Keep windows within specific boundaries (pixels or percentages).
-- **Focus Management**: Built-in `z-index` stacking and active window tracking.
-- **Persistence**: Built-in `localStorage` support to save window state across reloads.
-- **Responsive**: Initialize with pixels or screen percentages.
-- **Snap**: Snap windows to screen edges or grid points.
-- **Auto-Sizing**: Optional `updateSizeWithContent` to grow based on children.
-- **TypeScript**: First-class support with strict typings.
+* **Headless Architecture** — Full control over UI and styling
+* **Draggable & Resizable Windows** — Smooth interaction primitives
+* **Multi-Window Support** — Manage multiple floating windows
+* **Focus Management** — Automatic z-index stacking and active tracking
+* **Constraint System** — Boundaries, min/max sizes, snapping
+* **Persistence** — Save window state via `localStorage`
+* **Responsive Initialization** — Use pixels or percentages
+* **Snap System** — Snap to edges or grid
+* **Auto-Sizing** — Optional dynamic sizing based on content
+* **TypeScript First** — Fully typed API
+
+---
+
+## 🎥 Demo GIF
+
+> SOON
 
 ---
 
@@ -30,9 +68,9 @@ pnpm add react-window-modals
 
 ---
 
-## 📖 Quick Start
+## ⚡ Quick Start
 
-To use `react-window-modals`, you need to wrap your windows in a `WindowManagerProvider` (for z-index management) and each window in a `WindowProvider`.
+This example creates a draggable, focusable window.
 
 ```tsx
 import { useRef } from 'react';
@@ -40,13 +78,20 @@ import {
   WindowManagerProvider,
   WindowProvider,
   WindowWrapper,
-  WindowRefType,
   useDraggableWindow,
 } from 'react-window-modals';
 
 function WindowHeader() {
   const { onMouseDown } = useDraggableWindow();
-  return <div onMouseDown={onMouseDown} style={{ cursor: 'move', background: '#eee' }}>Drag Me</div>;
+
+  return (
+    <div
+      onMouseDown={onMouseDown}
+      style={{ cursor: 'move', background: '#eee', padding: 8 }}
+    >
+      Drag Me
+    </div>
+  );
 }
 
 export default function App() {
@@ -65,59 +110,116 @@ export default function App() {
 
 ---
 
-## ⚙️ API Reference
+## 🧠 Core Concepts
 
-### `WindowProvider` Props
+Understanding these core building blocks will help you integrate the library faster:
 
-| Prop                   | Type                | Description                                  |
-|:-----------------------|:--------------------|:---------------------------------------------|
-| `id`                   | `string`            | **Required.** Unique ID for the window.      |
-| `initialOpen`          | `boolean`           | Initial visibility.                          |
-| `initialPosition`      | `{ x, y }`          | Initial position (pixels or %).              |
-| `initialSize`          | `{ width, height }` | Initial size (pixels or %).                  |
-| `constrain`            | `object`            | Boundaries, min/max size, and snap settings. |
-| `persist`              | `object`            | `localStorage` key for state persistence.    |
-| `className`            | `string`            | Custom class for the wrapper.                |
-| `style`                | `object`            | Custom style for the wrapper.                |
-| `activateOnMouseEnter` | `boolean`           | Bring to front on hover.                     |
+* **WindowManagerProvider**
 
-### `WindowRefType` (via `useRef`)
+    * Manages global state
+    * Handles z-index stacking and focus
 
-| Method           | Description              |
-|:-----------------|:-------------------------|
-| `open()`         | Opens the window.        |
-| `close()`        | Closes the window.       |
-| `toggle()`       | Toggles visibility.      |
-| `minimize()`     | Minimizes the window.    |
-| `maximize()`     | Maximizes the window.    |
-| `restore()`      | Restores from max/min.   |
-| `bringToFront()` | Manually bring to front. |
+* **WindowProvider**
+
+    * Controls a single window instance
+    * Manages position, size, visibility
+
+* **WindowWrapper**
+
+    * Rendering layer
+    * Applies styles and layout
+
+---
+
+## 📦 Example: Multiple Windows
+
+```tsx
+<WindowManagerProvider>
+  <WindowProvider id="win-1" initialPosition={{ x: 100, y: 100 }}>
+    <WindowWrapper style={{ border: '1px solid black', background: 'white' }}>
+      <WindowHeader />
+      <div style={{ padding: 20 }}>Window 1</div>
+    </WindowWrapper>
+  </WindowProvider>
+
+  <WindowProvider id="win-2" activateOnMouseEnter>
+    <WindowWrapper style={{ border: '1px solid black', background: 'white' }}>
+      <WindowHeader />
+      <div style={{ padding: 20 }}>Window 2</div>
+    </WindowWrapper>
+  </WindowProvider>
+</WindowManagerProvider>
+```
+
+---
+
+## ⚙️ API Overview
+
+### WindowProvider Props
+
+#### Core
+
+| Prop          | Type      | Description        |
+|---------------|-----------|--------------------|
+| `id`          | `string`  | Unique window ID   |
+| `initialOpen` | `boolean` | Initial visibility |
+
+#### Layout
+
+| Prop              | Type                | Description      |
+|-------------------|---------------------|------------------|
+| `initialPosition` | `{ x, y }`          | Initial position |
+| `initialSize`     | `{ width, height }` | Initial size     |
+
+#### Behavior
+
+| Prop                   | Type      | Description              |
+|------------------------|-----------|--------------------------|
+| `activateOnMouseEnter` | `boolean` | Focus on hover           |
+| `constrain`            | `object`  | Bounds, snapping, limits |
+
+#### Persistence
+
+| Prop      | Type     | Description         |
+|-----------|----------|---------------------|
+| `persist` | `object` | localStorage config |
+
+---
+
+### WindowRef API
+
+| Method           | Description       |
+|------------------|-------------------|
+| `open()`         | Open window       |
+| `close()`        | Close window      |
+| `toggle()`       | Toggle visibility |
+| `minimize()`     | Minimize          |
+| `maximize()`     | Maximize          |
+| `restore()`      | Restore state     |
+| `bringToFront()` | Focus window      |
 
 ---
 
 ## 🛠 Advanced Usage
 
-### 1. Snap to Edges
+### Snap to Edges
+
 ```tsx
 <WindowProvider
   id="snap-win"
   constrain={{
-    snap: { edges: true, gridSize: 20, threshold: 15 }
+    snap: { edges: true, gridSize: 20, threshold: 15 },
   }}
 >
-  {/* ... */}
-</WindowProvider>
 ```
 
-### 2. Persistence
+### Persistence
+
 ```tsx
 <WindowProvider id="persist-win" persist={{ key: 'my-win-state' }}>
-  {/* State will be saved to localStorage */}
-</WindowProvider>
 ```
 
-### 3. Focus & Active State
-The library automatically manages `z-index`. You can check if a window is active using `useWindowState`:
+### Focus State
 
 ```tsx
 import { useWindowState } from 'react-window-modals';
@@ -130,17 +232,29 @@ function MyComponent() {
 
 ---
 
-## 💡 FAQ
+## ❓ FAQ
 
-**Q: How do I style the window?**
-A: Use the `className` or `style` props on the `WindowProvider`, or wrap the content inside `WindowWrapper` with your own CSS.
+**How do I style the window?**
+Use `className`, `style`, or wrap content inside `WindowWrapper`.
 
-**Q: Can I have multiple windows?**
-A: Yes, wrap each window in its own `WindowProvider` with a unique `id` and ensure they are all inside a single `WindowManagerProvider`.
+**Can I use multiple windows?**
+Yes, each with its own `WindowProvider`.
 
-**Q: Does it support touch devices?**
-A: Yes, the library includes touch event listeners for dragging and resizing.
+**Does it support touch devices?**
+Yes, touch events are supported.
 
 ---
 
-**License**: MIT
+## 🤝 Contributing
+
+Contributions are welcome.
+
+* Open issues for bugs or feature requests
+* Submit PRs with clear descriptions
+* Keep changes focused and minimal
+
+---
+
+## 📄 License
+
+MIT
