@@ -2,8 +2,22 @@
 
 ## Not a modal library. A window manager for React.
 
+![npm](https://img.shields.io/npm/v/react-window-modals)
+![bundle size](https://img.shields.io/bundlephobia/minzip/react-window-modals)
+![license](https://img.shields.io/npm/l/react-window-modals)
+
 A headless, desktop-like window management system for building complex, multi-window user interfaces in React
 applications.
+
+---
+
+## 📦 Package Characteristics
+
+- **Zero dependencies**
+- **Tree-shakeable** (ESM)
+- **No side effects** (safe for modern bundlers)
+- **Lightweight** (2.9 kB min+gzip)
+- **Fully typed** (TypeScript)
 
 ---
 
